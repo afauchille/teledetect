@@ -33,7 +33,7 @@ DES FONCTIONS
 #define VEC(V) {V, V, V, V, V}
 #define SQ(X) (X) * (X)
 #define NB_CLASS 5
-#define GET(p, i, j, w) p[j * w + i]
+#define GET(p, i, j, w) p[(j) * w + i]
 
 double dist(unsigned char v1[5], unsigned char v2[5])
 {
@@ -75,8 +75,6 @@ void ComputeImage(guchar *pucImaOrig,
 
   unsigned char c[NB_CLASS][5] = {VEC(255), VEC(255 * 3/4), VEC(255 * 2/4), VEC(255 * 1/4), VEC(0)};
 
-  printf("%f\n", dist(c[0], c[1]));
-
   iNbPixelsTotal=NbCol*NbLine;
   for(iNumPix=0;
       iNumPix<iNbPixelsTotal*iNbChannels;
@@ -96,21 +94,29 @@ void ComputeImage(guchar *pucImaOrig,
   }
 
   unsigned char v[5] = VEC(200);
-  printf("%d\n", getNeighbour(v, c));
 
+  unsigned int res[5] = VEC(0);
+
+  int n = 0;
   // We omit bordel pixels
   for (int j = 1; j < NbLine - 1; j += iNbChannels)
   {
     for (int i = 1; i < NbCol - 1; i += iNbChannels)
       {
-	v[0] = GET(pucImaOrig, i, j - 1, NbCol);
-	v[1] = GET(pucImaOrig, i - 1, j, NbCol);
-	v[2] = GET(pucImaOrig, i, j, NbCol);
-	v[3] = GET(pucImaOrig, i + 1, j, NbCol);
-	v[4] = GET(pucImaOrig, i, j + 1, NbCol);
+	v[0] = GET(pucImaRes, i, j - 1, NbCol);
+	v[1] = GET(pucImaRes, i - 1, j, NbCol);
+	v[2] = GET(pucImaRes, i, j, NbCol);
+	v[3] = GET(pucImaRes, i + 1, j, NbCol);
+	v[4] = GET(pucImaRes, i, j + 1, NbCol);
 
 	int iClass = getNeighbour(v, c);
+	res[iClass] += 1;
+	n += 1;
       }
   }
+
+  printf("%d pixels analyzed.\nResults:\n", n);
+  for (int i = 0; i < NB_CLASS; ++i)
+    printf("Class %u: %d\n", i, res[i]);
 }
 
